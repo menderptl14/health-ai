@@ -88,10 +88,9 @@ body::before {
   padding: 0;
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  z-index: 1000;
+  z-index: 100;
   overflow-y: auto;
   transition: transform 0.3s;
-  will-change: transform;
 }
 .sidebar-logo {
   padding: 28px 24px 20px;
@@ -199,8 +198,6 @@ body::before {
   flex: 1;
   padding: 32px;
   min-height: 100vh;
-  position: relative;
-  z-index: 1;
 }
 
 /* ── Topbar ── */
@@ -407,12 +404,12 @@ select option { background: var(--surface); }
   .grid-2 { grid-template-columns: 1fr; }
   .overlay {
     display: none;
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 900;
+    z-index: 99;
+  }
+  .overlay.active { display: block; }
 }
-.overlay.active { display: block; }
 
 /* ── Utilities ── */
 .flex { display: flex; }
@@ -584,15 +581,3 @@ document.querySelectorAll('[data-counter]').forEach(el => {
 {% block scripts %}{% endblock %}
 </body>
 </html>
-
-
-.sidebar
-.overlay
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 900;
-}
-.overlay.active { display: block; }
