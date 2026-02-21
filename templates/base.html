@@ -88,10 +88,13 @@ body::before {
   padding: 0;
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  z-index: 100;
+
+  z-index: 9999;   /* 🔥 change from 100 → 9999 */
+
   overflow-y: auto;
   transition: transform 0.3s;
 }
+
 .sidebar-logo {
   padding: 28px 24px 20px;
   border-bottom: 1px solid var(--border);
@@ -198,7 +201,11 @@ body::before {
   flex: 1;
   padding: 32px;
   min-height: 100vh;
+
+  position: relative;
+  z-index: 1;   /* ✅ important */
 }
+
 
 /* ── Topbar ── */
 .topbar {
