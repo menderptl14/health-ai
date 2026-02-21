@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block title %}Physiotherapy{% endblock %}
+{% block page_title %}Physiotherapy Exercises{% endblock %}
+{% block page_subtitle %}Guided rehabilitation exercises with timers and progress tracking{% endblock %}
+
+{% block extra_head %}
+<style>
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.exercise-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.exercise-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+.exercise-header {
+  padding: 20px 20px 0;
+}
+.exercise-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 14px;
+}
+.exercise-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.exercise-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 3px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.exercise-desc {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.exercise-controls {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.timer-display {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  min-width: 60px;
+}
+.rep-display {
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+}
+.rep-count {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  display: block;
+}
+
+.start-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #000;
+}
+.start-btn:hover { opacity: 0.9; }
+.start-btn.running { background: linear-gradient(135deg, var(--danger), #ef4444); color: #fff; }
+.start-btn.done { background: linear-gradient(135deg, var(--accent3), #059669); color: #000; }
+
+.circular-progress {
+  position: relative;
+  width: 52px; height: 52px;
+}
+.circular-progress svg { transform: rotate(-90deg); }
+.circular-progress .bg { stroke: var(--border); }
+.circular-progress .fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.5s linear; }
+
+/* Completion bar */
+.overall-progress {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.overall-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.overall-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.category-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.cat-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--glow);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cat-btn.active, .cat-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,189,248,0.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Overall progress -->
+<div class="overall-progress">
+  <div class="flex justify-between items-center">
+    <div>
+      <div class="card-label">Session Progress</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-top:2px">
+        <span id="completedCount">0</span> of 8 Exercises Completed
+      </div>
+    </div>
+    <span style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent)" id="progressPct">0%</span>
+  </div>
+  <div class="overall-bar"><div class="overall-fill" id="overallFill" style="width:0%"></div></div>
+</div>
+
+<div class="category-filter">
+  <button class="cat-btn active" onclick="filterCat(this, 'all')">All Exercises</button>
+  <button class="cat-btn" onclick="filterCat(this, 'stretching')">Stretching</button>
+  <button class="cat-btn" onclick="filterCat(this, 'strength')">Strength</button>
+  <button class="cat-btn" onclick="filterCat(this, 'balance')">Balance</button>
+  <button class="cat-btn" onclick="filterCat(this, 'breathing')">Breathing</button>
+</div>
+
+<div class="exercise-grid" id="exerciseGrid">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const exercises = [
+  { id:1, name:'Deep Breathing', emoji:'🌬️', cat:'breathing', reps:10, duration:30, level:'Beginner', target:'Lungs, Stress Relief', desc:'Inhale slowly for 4 counts, hold for 4, exhale for 6. Activates the parasympathetic nervous system to reduce anxiety and improve oxygen flow.' },
+  { id:2, name:'Neck Stretches', emoji:'🧘', cat:'stretching', reps:8, duration:20, level:'Beginner', target:'Neck, Upper Back', desc:'Gently tilt head side to side, forward and back. Relieves tension from desk work and improves cervical mobility.' },
+  { id:3, name:'Shoulder Rolls', emoji:'💪', cat:'stretching', reps:12, duration:25, level:'Beginner', target:'Shoulders, Upper Traps', desc:'Roll shoulders forward and backward in large circular motions. Excellent for postural correction and shoulder tension relief.' },
+  { id:4, name:'Seated Leg Raises', emoji:'🦵', cat:'strength', reps:15, duration:40, level:'Beginner', target:'Quadriceps, Core', desc:'Sit straight, extend one leg and hold for 2 seconds. Strengthens thigh muscles and improves knee stability without joint stress.' },
+  { id:5, name:'Cat-Cow Stretch', emoji:'🐄', cat:'stretching', reps:10, duration:35, level:'Beginner', target:'Spine, Core, Back', desc:'On all fours, alternate arching and rounding your spine. Improves spinal flexibility and relieves lower back pain effectively.' },
+  { id:6, name:'Wall Push-Ups', emoji:'🏋️', cat:'strength', reps:12, duration:30, level:'Intermediate', target:'Chest, Arms, Core', desc:'Stand facing wall, place hands and push. A low-impact alternative to floor push-ups, great for upper body strength building.' },
+  { id:7, name:'Single Leg Balance', emoji:'🦩', cat:'balance', reps:1, duration:60, level:'Intermediate', target:'Ankles, Core, Proprioception', desc:'Stand on one foot for 30-60 seconds. Dramatically improves proprioception, ankle stability, and prevents falls.' },
+  { id:8, name:'Hip Flexor Stretch', emoji:'🧘', cat:'stretching', reps:6, duration:45, level:'Beginner', target:'Hip Flexors, Lower Back', desc:'Lunge position, drop back knee. Counteracts the effects of prolonged sitting and relieves chronic lower back tension.' }
+];
+
+let completedIds = new Set();
+let timers = {};
+
+function filterCat(btn, cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderExercises(cat);
+}
+
+function renderExercises(cat='all') {
+  const filtered = cat === 'all' ? exercises : exercises.filter(e => e.cat === cat);
+  const grid = document.getElementById('exerciseGrid');
+  grid.innerHTML = filtered.map(e => `
+    <div class="exercise-card" id="card-${e.id}" data-cat="${e.cat}">
+      <div class="exercise-header">
+        <div class="exercise-icon" style="background:rgba(56,189,248,0.1)">${e.emoji}</div>
+        <div class="exercise-name">${e.name}</div>
+        <div class="exercise-meta">
+          <span class="meta-tag"><i class="fa-solid fa-dumbbell"></i> ${e.level}</span>
+          <span class="meta-tag"><i class="fa-solid fa-crosshairs"></i> ${e.target}</span>
+        </div>
+      </div>
+      <div class="exercise-desc">${e.desc}</div>
+      <div class="exercise-controls">
+        <div class="circular-progress">
+          <svg width="52" height="52" viewBox="0 0 52 52">
+            <circle class="bg" cx="26" cy="26" r="21" fill="none" stroke-width="4"/>
+            <circle class="fill" id="cpfill-${e.id}" cx="26" cy="26" r="21" fill="none" stroke-width="4"
+              stroke-dasharray="131.9" stroke-dashoffset="131.9"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;color:var(--accent)" id="timer-${e.id}">${e.duration}s</div>
+          </div>
+        </div>
+        <div>
+          <div class="rep-count" id="reps-${e.id}">${e.reps}</div>
+          <div class="rep-display">reps left</div>
+        </div>
+        <button class="start-btn" id="btn-${e.id}" onclick="toggleExercise(${e.id})">
+          ▶ Start
+        </button>
+      </div>
+    </div>`).join('');
+
+  // Re-apply completed state
+  completedIds.forEach(id => {
+    const btn = document.getElementById(`btn-${id}`);
+    if (btn) { btn.textContent = '✓ Done'; btn.className = 'start-btn done'; btn.disabled = true; }
+  });
+}
+
+function toggleExercise(id) {
+  const ex = exercises.find(e => e.id === id);
+  const btn = document.getElementById(`btn-${id}`);
+  const timerEl = document.getElementById(`timer-${id}`);
+  const repsEl = document.getElementById(`reps-${id}`);
+  const fillEl = document.getElementById(`cpfill-${id}`);
+
+  if (timers[id]) {
+    // Stop
+    clearInterval(timers[id]);
+    delete timers[id];
+    btn.innerHTML = '▶ Start';
+    btn.className = 'start-btn';
+    return;
+  }
+
+  let remaining = ex.duration;
+  let repsLeft = ex.reps;
+  btn.innerHTML = '⏹ Stop';
+  btn.className = 'start-btn running';
+  const circumference = 131.9;
+
+  timers[id] = setInterval(() => {
+    remaining--;
+    timerEl.textContent = remaining + 's';
+    const progress = ((ex.duration - remaining) / ex.duration) * circumference;
+    fillEl.style.strokeDashoffset = circumference - progress;
+
+    // Rep countdown
+    const repInterval = Math.floor(ex.duration / ex.reps);
+    if (remaining % repInterval === 0 && repsLeft > 0) {
+      repsLeft--;
+      repsEl.textContent = repsLeft;
+    }
+
+    if (remaining <= 0) {
+      clearInterval(timers[id]);
+      delete timers[id];
+      btn.textContent = '✓ Done';
+      btn.className = 'start-btn done';
+      btn.disabled = true;
+      timerEl.textContent = '✓';
+      repsEl.textContent = '0';
+      completedIds.add(id);
+      updateProgress();
+      showToast(`${ex.name} completed! Great work! 💪`, 'success');
+    }
+  }, 1000);
+}
+
+function updateProgress() {
+  const total = exercises.length;
+  const done = completedIds.size;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('completedCount').textContent = done;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('overallFill').style.width = pct + '%';
+}
+
+renderExercises();
+</script>
+{% endblock %}

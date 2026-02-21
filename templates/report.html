@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Report Analyzer{% endblock %}
+{% block page_title %}AI Report Analyzer{% endblock %}
+{% block page_subtitle %}Paste your lab results and get clear, jargon-free explanations{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+  <div>
+    <div class="card">
+      <div class="card-label">Upload Report Text</div>
+      <div class="card-title mt-1">Enter Lab Report Data</div>
+      <div class="mt-4">
+        <div class="form-group">
+          <label>Lab Report Content</label>
+          <textarea id="reportText" rows="14"
+            placeholder="Paste your lab report here. Example:
+
+CBC Report:
+- Hemoglobin: 10.2 g/dL (Normal: 12-16)
+- WBC Count: 12,500/µL (Normal: 4000-11000)
+- Platelet count: 1,80,000/µL (Normal: 150000-400000)
+- RBC: 3.8 million/µL (Normal: 4.2-5.4)
+
+Blood Sugar:
+- Fasting Glucose: 126 mg/dL
+- HbA1c: 7.2%
+..."></textarea>
+        </div>
+        <button class="btn btn-primary w-full" id="analyzeBtn" onclick="analyzeReport()">
+          <i class="fa-solid fa-flask"></i> Analyze Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Example formats -->
+    <div class="card mt-4">
+      <div class="card-label">Supported Report Types</div>
+      <div class="mt-3" style="display:flex;flex-direction:column;gap:10px">
+        <div class="flex items-center gap-10" style="gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(56,189,248,0.12);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0"><i class="fa-solid fa-vial"></i></div>
+          <div><div style="font-size:0.875rem;font-weight:600">Complete Blood Count (CBC)</div><div class="text-sm text-muted">RBC, WBC, Hemoglobin, Platelets</div></div>
+        </div>
+        <div class="flex items-center gap-10" style="gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(129,140,248,0.12);display:flex;align-items:center;justify-content:center;color:var(--accent2);flex-shrink:0"><i class="fa-solid fa-droplet"></i></div>
+          <div><div style="font-size:0.875rem;font-weight:600">Blood Sugar / Diabetes Panel</div><div class="text-sm text-muted">Fasting glucose, HbA1c, insulin</div></div>
+        </div>
+        <div class="flex items-center gap-10" style="gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(52,211,153,0.12);display:flex;align-items:center;justify-content:center;color:var(--accent3);flex-shrink:0"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div><div style="font-size:0.875rem;font-weight:600">Lipid Panel / Cholesterol</div><div class="text-sm text-muted">LDL, HDL, Triglycerides</div></div>
+        </div>
+        <div class="flex items-center gap-10" style="gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;color:#fb923c;flex-shrink:0"><i class="fa-solid fa-liver"></i></div>
+          <div><div style="font-size:0.875rem;font-weight:600">Liver / Kidney Function Tests</div><div class="text-sm text-muted">ALT, AST, Creatinine, BUN</div></div>
+        </div>
+        <div class="flex items-center gap-10" style="gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(56,189,248,0.12);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0"><i class="fa-solid fa-sun"></i></div>
+          <div><div style="font-size:0.875rem;font-weight:600">Vitamin & Thyroid Tests</div><div class="text-sm text-muted">Vitamin D, B12, TSH, T3, T4</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div>
+    <div id="resultArea">
+      <div class="card" style="text-align:center;padding:60px 24px">
+        <i class="fa-solid fa-file-medical" style="font-size:3rem;color:var(--accent);opacity:0.3;display:block;margin-bottom:20px"></i>
+        <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:8px">Paste Your Report</div>
+        <div class="text-muted text-sm">Enter your lab report text on the left and click Analyze to get a clear, easy-to-understand explanation.</div>
+      </div>
+    </div>
+
+    <div class="card mt-4" style="background:rgba(251,191,36,0.05);border-color:rgba(251,191,36,0.2)">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-shield-halved" style="color:#fbbf24;font-size:1.2rem"></i>
+        <div>
+          <div style="font-weight:700;font-size:0.875rem">Important Disclaimer</div>
+          <div class="text-sm text-muted mt-1" style="line-height:1.6">
+            This AI analysis is for educational purposes only. Always consult a licensed healthcare professional for medical advice, diagnosis, or treatment decisions.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function analyzeReport() {
+  const text = document.getElementById('reportText').value.trim();
+  if (!text) { showToast('Please paste your lab report first', 'error'); return; }
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(0,0,0,0.2);border-top-color:#000;margin:0 auto"></div>';
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="card" style="text-align:center;padding:60px">
+      <div class="spinner" style="width:40px;height:40px;border-width:3px;margin:0 auto 20px"></div>
+      <div style="color:var(--muted)">AI is analyzing your lab report...</div>
+    </div>`;
+
+  try {
+    const res = await fetch('/api/analyze-report', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({report_text: text})
+    });
+    const data = await res.json();
+    document.getElementById('resultArea').innerHTML = `
+      <div class="card">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <div class="card-label">AI Analysis</div>
+            <div class="card-title mt-1">Lab Report Explanation</div>
+          </div>
+          <span class="badge badge-info">Gemini AI</span>
+        </div>
+        <div class="ai-response" id="reportContent"></div>
+        <div class="mt-4" style="display:flex;gap:10px">
+          <a href="/chat" class="btn btn-primary"><i class="fa-solid fa-robot"></i> Discuss with AI</a>
+          <button class="btn btn-ghost" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> New Report</button>
+        </div>
+      </div>`;
+    document.getElementById('reportContent').innerHTML = marked.parse(data.result);
+    showToast('Report analyzed successfully!');
+  } catch(e) {
+    showToast('Analysis failed. Please try again.', 'error');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-flask"></i> Analyze Report';
+}
+</script>
+{% endblock %}

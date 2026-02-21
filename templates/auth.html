@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block public_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HealthPilot AI – {% if page == 'register' %}Register{% else %}Sign In{% endif %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060b14;--surface:#0c1220;--card:#111926;--border:rgba(56,189,248,0.14);
+  --accent:#38bdf8;--accent2:#818cf8;--text:#e2eaf7;--muted:#7a92b0;--danger:#f87171;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 80% 10%,rgba(56,189,248,0.06) 0%,transparent 60%),
+             radial-gradient(ellipse at 20% 90%,rgba(129,140,248,0.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.auth-wrap{width:100%;max-width:480px;position:relative;z-index:1;}
+.logo{text-align:center;margin-bottom:40px;}
+.logo h1{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo p{color:var(--muted);font-size:0.85rem;margin-top:6px;}
+
+.auth-card{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:36px;
+}
+.auth-card::before{
+  content:'';display:block;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:2px 2px 0 0;margin:-36px -36px 32px;border-radius:20px 20px 0 0;
+}
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:6px;}
+.sub{color:var(--muted);font-size:0.875rem;margin-bottom:28px;}
+
+.form-group{margin-bottom:18px;}
+label{display:block;font-size:0.75rem;font-weight:700;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.06em;}
+.input-wrap{position:relative;}
+.input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.9rem;}
+input{
+  width:100%;padding:12px 16px 12px 40px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.875rem;outline:none;
+  transition:border-color 0.2s;
+}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1);}
+input::placeholder{color:var(--muted);}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+.error{
+  background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);
+  border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.875rem;
+  color:var(--danger);display:flex;align-items:center;gap:8px;
+}
+
+.btn{
+  width:100%;padding:13px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;margin-top:4px;
+}
+.btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 6px 24px rgba(56,189,248,0.25);}
+
+.switch{text-align:center;margin-top:24px;color:var(--muted);font-size:0.875rem;}
+.switch a{color:var(--accent);text-decoration:none;font-weight:600;}
+.switch a:hover{text-decoration:underline;}
+
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="logo">
+    <h1>⚕ HealthPilot AI</h1>
+    <p>Intelligent Healthcare Platform</p>
+  </div>
+
+  <div class="auth-card">
+    {% if page == 'register' %}
+    <h2>Create Account</h2>
+    <p class="sub">Join HealthPilot and take control of your health.</p>
+
+    {% if error %}
+    <div class="error"><i class="fa-solid fa-circle-exclamation"></i>{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Full Name</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" name="name" placeholder="Your full name" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" name="email" placeholder="your@email.com" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" name="password" placeholder="Create a strong password" required/>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="form-group">
+          <label>Age</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-cake-candles"></i>
+            <input type="number" name="age" placeholder="25" min="1" max="120"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Weight (kg)</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-weight-scale"></i>
+            <input type="number" name="weight" placeholder="70" step="0.1"/>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Height (cm)</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-ruler-vertical"></i>
+          <input type="number" name="height" placeholder="170" step="0.1"/>
+        </div>
+      </div>
+      <button type="submit" class="btn"><i class="fa-solid fa-rocket"></i> Create Account</button>
+    </form>
+    <div class="switch">Already have an account? <a href="/login">Sign in</a></div>
+
+    {% else %}
+    <h2>Welcome Back</h2>
+    <p class="sub">Sign in to your HealthPilot account.</p>
+
+    {% if error %}
+    <div class="error"><i class="fa-solid fa-circle-exclamation"></i>{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" name="email" placeholder="your@email.com" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" name="password" placeholder="Your password" required/>
+        </div>
+      </div>
+      <button type="submit" class="btn"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+    </form>
+    <div class="switch">Don't have an account? <a href="/register">Create one</a></div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>
+{% endblock %}

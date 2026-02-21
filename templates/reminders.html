@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Reminders{% endblock %}
+{% block page_title %}Health Reminders{% endblock %}
+{% block page_subtitle %}Set and manage your medicine, hydration, and exercise reminders{% endblock %}
+
+{% block extra_head %}
+<style>
+.reminder-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: all 0.2s;
+  margin-bottom: 12px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.reminder-card:hover { transform: translateX(4px); border-color: rgba(56,189,248,0.25); }
+
+.rem-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.rem-medicine { background: rgba(56,189,248,0.12); color: var(--accent); }
+.rem-water { background: rgba(129,140,248,0.12); color: var(--accent2); }
+.rem-exercise { background: rgba(52,211,153,0.12); color: var(--accent3); }
+.rem-vitamin { background: rgba(251,146,60,0.12); color: #fb923c; }
+.rem-sleep { background: rgba(248,113,113,0.12); color: var(--danger); }
+
+.rem-time {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-2">
+  <!-- Add Reminder -->
+  <div>
+    <div class="card">
+      <div class="card-label">Add New</div>
+      <div class="card-title mt-1">Create Reminder</div>
+      <div class="mt-4">
+        <div class="form-group">
+          <label>Reminder Title</label>
+          <input type="text" id="title" placeholder="e.g., Take Blood Pressure Medicine"/>
+        </div>
+        <div class="form-group">
+          <label>Time</label>
+          <input type="time" id="time" value="08:00"/>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="type">
+            <option value="medicine">💊 Medicine</option>
+            <option value="water">💧 Hydration</option>
+            <option value="exercise">🏃 Exercise</option>
+            <option value="vitamin">🌿 Vitamin / Supplement</option>
+            <option value="sleep">😴 Sleep</option>
+          </select>
+        </div>
+        <button class="btn btn-primary w-full" onclick="addReminder()">
+          <i class="fa-solid fa-plus"></i> Add Reminder
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick presets -->
+    <div class="card mt-4">
+      <div class="card-label">Quick Presets</div>
+      <div class="card-title mt-1">Common Reminders</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="preset('Morning Medicine', '08:00', 'medicine')">
+          <i class="fa-solid fa-pills" style="color:var(--accent)"></i> Morning Medicine – 8:00 AM
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="preset('Drink Water', '10:00', 'water')">
+          <i class="fa-solid fa-droplet" style="color:var(--accent2)"></i> Drink Water – 10:00 AM
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="preset('Evening Walk', '18:00', 'exercise')">
+          <i class="fa-solid fa-person-walking" style="color:var(--accent3)"></i> Evening Walk – 6:00 PM
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="preset('Vitamin D Supplement', '09:00', 'vitamin')">
+          <i class="fa-solid fa-sun" style="color:#fb923c"></i> Vitamin D – 9:00 AM
+        </button>
+        <button class="btn btn-ghost" style="justify-content:flex-start" onclick="preset('Bedtime Routine', '22:00', 'sleep')">
+          <i class="fa-solid fa-moon" style="color:var(--danger)"></i> Bedtime Routine – 10:00 PM
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reminder List -->
+  <div>
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <div class="card-label">Active</div>
+          <div class="card-title">Your Reminders</div>
+        </div>
+        <span class="badge badge-info" id="remCount">{{ reminders|length }} set</span>
+      </div>
+      <div id="reminderList">
+        {% if reminders %}
+          {% for r in reminders %}
+          <div class="reminder-card" id="rem-{{ r.id }}">
+            <div class="rem-icon rem-{{ r.type }}">
+              <i class="fa-solid {% if r.type == 'medicine' %}fa-pills{% elif r.type == 'water' %}fa-droplet{% elif r.type == 'exercise' %}fa-person-running{% elif r.type == 'vitamin' %}fa-leaf{% else %}fa-moon{% endif %}"></i>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:0.9rem">{{ r.title }}</div>
+              <div class="text-sm text-muted">{{ r.type|title }}</div>
+            </div>
+            <div class="rem-time">{{ r.time }}</div>
+            <button class="btn btn-danger" style="padding:7px 12px;font-size:0.78rem" onclick="deleteReminder({{ r.id }})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div id="emptyState" style="text-align:center;padding:48px 24px;color:var(--muted)">
+            <i class="fa-solid fa-bell-slash" style="font-size:2.5rem;opacity:0.3;display:block;margin-bottom:16px"></i>
+            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px">No reminders yet</div>
+            <div class="text-sm">Create your first reminder using the form on the left or use a quick preset.</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const typeIcons = {
+  medicine: 'fa-pills',
+  water: 'fa-droplet',
+  exercise: 'fa-person-running',
+  vitamin: 'fa-leaf',
+  sleep: 'fa-moon'
+};
+
+function preset(title, time, type) {
+  document.getElementById('title').value = title;
+  document.getElementById('time').value = time;
+  document.getElementById('type').value = type;
+  showToast('Preset loaded! Click Add Reminder to save.', 'success');
+}
+
+async function addReminder() {
+  const title = document.getElementById('title').value.trim();
+  const time = document.getElementById('time').value;
+  const type = document.getElementById('type').value;
+  if (!title) { showToast('Please enter a reminder title', 'error'); return; }
+
+  await fetch('/api/reminder', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({title, time, type})
+  });
+
+  // Add to UI
+  const list = document.getElementById('reminderList');
+  const empty = document.getElementById('emptyState');
+  if (empty) empty.remove();
+
+  const div = document.createElement('div');
+  div.className = 'reminder-card';
+  div.innerHTML = `
+    <div class="rem-icon rem-${type}">
+      <i class="fa-solid ${typeIcons[type] || 'fa-bell'}"></i>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:600;font-size:0.9rem">${title}</div>
+      <div class="text-sm text-muted">${type.charAt(0).toUpperCase()+type.slice(1)}</div>
+    </div>
+    <div class="rem-time">${time}</div>
+    <button class="btn btn-danger" style="padding:7px 12px;font-size:0.78rem" onclick="deleteReminder(-1)">
+      <i class="fa-solid fa-trash"></i>
+    </button>`;
+  list.appendChild(div);
+
+  document.getElementById('title').value = '';
+  showToast(`Reminder "${title}" added!`, 'success');
+}
+
+async function deleteReminder(id) {
+  if (id !== -1) {
+    await fetch(`/api/reminder/${id}`, {method: 'DELETE'});
+    document.getElementById(`rem-${id}`)?.remove();
+  }
+  showToast('Reminder removed', 'success');
+}
+</script>
+{% endblock %}

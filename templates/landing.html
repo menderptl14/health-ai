@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block public_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HealthPilot AI – Intelligent Healthcare Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060b14;--surface:#0c1220;--card:#111926;--border:rgba(56,189,248,0.12);
+  --accent:#38bdf8;--accent2:#818cf8;--accent3:#34d399;
+  --text:#e2eaf7;--muted:#7a92b0;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+
+/* ── BG effects ── */
+.bg-orb{
+  position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;
+}
+.orb1{width:600px;height:600px;background:rgba(56,189,248,0.05);top:-100px;right:-100px;animation:drift 12s ease-in-out infinite alternate;}
+.orb2{width:500px;height:500px;background:rgba(129,140,248,0.05);bottom:-100px;left:-100px;animation:drift 15s ease-in-out infinite alternate-reverse;}
+@keyframes drift{from{transform:translate(0,0);}to{transform:translate(60px,40px);}}
+
+/* ── Navbar ── */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 48px;position:sticky;top:0;z-index:100;
+  background:rgba(6,11,20,0.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;gap:32px;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.875rem;font-weight:500;transition:color 0.2s;}
+.nav-links a:hover{color:var(--accent);}
+.nav-cta{display:flex;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:600;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;}
+.btn-primary:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 6px 24px rgba(56,189,248,0.3);}
+
+/* ── Hero ── */
+.hero{
+  min-height:calc(100vh - 70px);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:60px 24px;
+  position:relative;z-index:1;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:20px;
+  background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);
+  font-size:0.78rem;font-weight:600;color:var(--accent);
+  margin-bottom:28px;letter-spacing:0.04em;
+}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse2 2s infinite;}
+@keyframes pulse2{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.hero h1{
+  font-family:'Syne',sans-serif;font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:800;line-height:1.05;margin-bottom:24px;
+  background:linear-gradient(160deg,var(--text) 0%,rgba(226,234,247,0.6) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero h1 .highlight{
+  background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 40px;line-height:1.7;}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.hero-stats{
+  display:flex;gap:48px;justify-content:center;margin-top:60px;
+  padding-top:40px;border-top:1px solid var(--border);flex-wrap:wrap;
+}
+.stat h3{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat p{color:var(--muted);font-size:0.8rem;margin-top:4px;}
+
+/* ── Features ── */
+.section{padding:100px 48px;position:relative;z-index:1;max-width:1200px;margin:0 auto;}
+.section-tag{display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.1em;background:rgba(129,140,248,0.12);
+  color:var(--accent2);border:1px solid rgba(129,140,248,0.25);margin-bottom:16px;}
+.section h2{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;margin-bottom:16px;}
+.section p.lead{color:var(--muted);font-size:1rem;max-width:540px;line-height:1.7;margin-bottom:60px;}
+
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.feature-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:28px;transition:all 0.3s;position:relative;overflow:hidden;
+}
+.feature-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;
+  transition:opacity 0.3s;
+}
+.feature-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.4);border-color:rgba(56,189,248,0.25);}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;margin-bottom:18px;
+}
+.icon-blue{background:rgba(56,189,248,0.12);color:var(--accent);}
+.icon-purple{background:rgba(129,140,248,0.12);color:var(--accent2);}
+.icon-green{background:rgba(52,211,153,0.12);color:var(--accent3);}
+.icon-orange{background:rgba(251,146,60,0.12);color:#fb923c;}
+.feature-card h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:10px;}
+.feature-card p{color:var(--muted);font-size:0.875rem;line-height:1.6;}
+
+/* ── How it works ── */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px;margin-top:60px;}
+.step{text-align:center;padding:32px 20px;}
+.step-num{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:#000;
+  margin:0 auto 20px;
+}
+.step h3{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;}
+.step p{color:var(--muted);font-size:0.875rem;line-height:1.6;}
+
+/* ── CTA Banner ── */
+.cta-banner{
+  margin:60px 48px;padding:60px 48px;
+  background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(129,140,248,0.08));
+  border:1px solid rgba(56,189,248,0.15);border-radius:24px;
+  text-align:center;position:relative;z-index:1;
+}
+.cta-banner h2{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:12px;}
+.cta-banner p{color:var(--muted);margin-bottom:32px;}
+
+/* ── Footer ── */
+footer{
+  padding:40px 48px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;position:relative;z-index:1;
+}
+footer .logo-sm{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+footer p{color:var(--muted);font-size:0.8rem;}
+
+@media(max-width:768px){
+  nav{padding:16px 20px;}
+  .nav-links{display:none;}
+  .section{padding:60px 20px;}
+  .cta-banner{margin:40px 20px;padding:40px 24px;}
+  footer{flex-direction:column;text-align:center;padding:30px 20px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+
+<nav>
+  <div class="logo">⚕ HealthPilot AI</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+  </div>
+  <div class="nav-cta">
+    <a href="/login" class="btn btn-outline">Sign In</a>
+    <a href="/register" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Get Started</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div>
+    <div class="hero-badge">
+      <span class="dot"></span>
+      AI-Powered Healthcare Platform
+    </div>
+    <h1>Your Personal<br><span class="highlight">AI Health</span> Assistant</h1>
+    <p>Advanced AI technology meets modern healthcare. Get instant symptom analysis, personalized health plans, and real-time wellness tracking — all in one intelligent platform.</p>
+    <div class="hero-cta">
+      <a href="/register" class="btn btn-primary" style="font-size:1rem;padding:14px 32px;">
+        <i class="fa-solid fa-heart-pulse"></i> Start Your Journey
+      </a>
+      <a href="/login" class="btn btn-outline" style="padding:14px 32px;">
+        <i class="fa-solid fa-arrow-right"></i> Sign In
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><h3>8+</h3><p>AI-Powered Features</p></div>
+      <div class="stat"><h3>100%</h3><p>Privacy First</p></div>
+      <div class="stat"><h3>24/7</h3><p>AI Availability</p></div>
+      <div class="stat"><h3>Free</h3><p>To Get Started</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<div class="section" id="features">
+  <div class="section-tag">Capabilities</div>
+  <h2>Everything You Need<br>for Better Health</h2>
+  <p class="lead">An integrated AI health ecosystem designed to give you real insights and actionable guidance at every step.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon icon-blue"><i class="fa-solid fa-robot"></i></div>
+      <h3>AI Health Chat</h3>
+      <p>Chat with our Gemini-powered health assistant anytime. Get medical insights, explanations, and guidance in plain language.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-purple"><i class="fa-solid fa-stethoscope"></i></div>
+      <h3>Symptom Analyzer</h3>
+      <p>Describe your symptoms and receive AI-powered analysis with possible conditions, severity levels, and recommended actions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-green"><i class="fa-solid fa-file-medical"></i></div>
+      <h3>Report Analyzer</h3>
+      <p>Paste your lab results and get clear, jargon-free explanations with highlighted abnormal values and next steps.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-orange"><i class="fa-solid fa-apple-whole"></i></div>
+      <h3>Diet & Fitness Planner</h3>
+      <p>Personalized meal plans and workout routines generated by AI based on your goals, body metrics, and lifestyle.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-blue"><i class="fa-solid fa-heart-pulse"></i></div>
+      <h3>Mental Wellness</h3>
+      <p>Track your mood daily, journal your thoughts, and receive compassionate AI coping strategies and mindfulness tips.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-purple"><i class="fa-solid fa-person-running"></i></div>
+      <h3>Physiotherapy</h3>
+      <p>Guided exercise routines with timers, rep counters, and animated progress tracking to aid your recovery.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-green"><i class="fa-solid fa-bell"></i></div>
+      <h3>Smart Reminders</h3>
+      <p>Set medicine, hydration, and exercise reminders with a beautiful notification UI and completion tracking.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon icon-orange"><i class="fa-solid fa-gauge-high"></i></div>
+      <h3>Health Dashboard</h3>
+      <p>Your AI-powered health score, BMI tracker, mood graph, and activity progress in one stunning visual dashboard.</p>
+    </div>
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="section" id="how" style="text-align:center;">
+  <div class="section-tag">Process</div>
+  <h2>How HealthPilot Works</h2>
+  <p class="lead" style="margin:0 auto 0;">Simple steps to a healthier, smarter lifestyle.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Create Account</h3>
+      <p>Sign up in seconds and set up your health profile with basic metrics.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Input Your Data</h3>
+      <p>Log symptoms, moods, activity and health data for AI to analyze.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>AI Analyzes</h3>
+      <p>Our Gemini-powered AI processes your health data instantly.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Get Insights</h3>
+      <p>Receive personalized recommendations, plans, and health scores.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <h2>Start Your Health Journey Today</h2>
+  <p>Join thousands who are taking control of their health with AI-powered insights.</p>
+  <a href="/register" class="btn btn-primary" style="font-size:1rem;padding:14px 36px;">
+    <i class="fa-solid fa-rocket"></i> Get Started Free
+  </a>
+</div>
+
+<footer>
+  <div class="logo-sm">⚕ HealthPilot AI</div>
+  <p>Built with Flask + Gemini AI &nbsp;·&nbsp; Advanced Healthcare Platform</p>
+  <p style="color:var(--muted)">© 2024 HealthPilot AI. For educational purposes.</p>
+</footer>
+</body>
+</html>
+{% endblock %}
